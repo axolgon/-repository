@@ -80,8 +80,6 @@ class DetermineColor:
             # msg.frame_id = '-1' # CW (Red background)
             
 
-            cv2.imshow('Image',image)
-            cv2.waitKey(1)
             
             #print(image[int(image.shape[0]*0.5),int(image.shape[1]*0.3)])
             msg.frame_id=BGR(image)
