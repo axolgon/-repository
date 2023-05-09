@@ -21,7 +21,7 @@ def apply_filter(input_, filter_):
     for i in range(output_height):
         for j in range(output_width):
             k=np.sum(filter_*input_[i:i+filter_height,j:j+filter_width])
-            if np.abs(k)>10:
+            if np.abs(k)>50:
                 output[i,j]=255
             else:
                 output[i,j]=0
@@ -36,7 +36,7 @@ def BGR(img):
       b,g,r=img[int((i/80)*img.shape[0]*16/27+img.shape[0]*5/42),int((j/100)*img.shape[1]*13/18+img.shape[1]*1/9)]
       if (b>=180 and b<=255) and (r>=0 and r<=60):
        bgr[0]+=1
-      elif (b>=0 and b<=60) and (g>-0 and g<=150) and (r>=190 and r<=255):
+      elif (b>=0 and b<=60) and (g>=0 and g<=150) and (r>=190 and r<=255):
        bgr[1]+=1
       else:
        bgr[2]+=1
@@ -84,7 +84,7 @@ class DetermineColor:
             cv2.waitKey(1)
             
             #print(image[int(image.shape[0]*0.5),int(image.shape[1]*0.3)])
-            print(BGR(image))
+            msg.frame_id=BGR(image)
 
             # publish color_state
             self.color_pub.publish(msg)
