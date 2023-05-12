@@ -6,37 +6,24 @@ from cv_bridge import CvBridge, CvBridgeError
 from std_msgs.msg import Header
 import cv2
 
-def BGR(img, arr):
-  bgr=[0,0,0]
+def BGR(image):
   musigi='0'
+  hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+  hist, _ = np.histogram(hsv[:,:,0], bins=180, range=[0, 180]) 
+  color_most = np.argmax(hist) 
 
-  for i in range(7):
-    p1=arr[0]+(arr[1]-arr[0])*(i/7)
-    p2=arr[3]+(arr[2]-arr[3])*(i/7)
-    for j in range(10):
-      q=p1+(p2-p1)*(j/10)
-      b,g,r=img[int(q[1]),int(q[0])]
-      if (b>=170 and b<=255) and (g>=0 and g<=200):
-        bgr[0]+=1
-      elif  (g>=0 and g<=150) and (r>=170 and r<=255):
-        bgr[1]+=1
-      else:
-        bgr[2]+=1
-  if np.argmax(bgr)==0:
-    musigi='+1'
-  elif np.argmax(bgr)==1:
-    musigi='-1'    
-  elif np.argmax(bgr)==2:
-    musigi='0'    
+  if (0<=color_most <=15) or (165<color_most <=180)   :  
+           musigi='-1' 
+  elif (90<=color_most<=135): 
+           musigi='+1' 
+  else:
+           musigi='0'  
   return musigi
-
 
 class DetermineColor:
     def __init__(self):
         self.image_sub = rospy.Subscriber('/camera/color/image_raw', Image, self.callback)
         self.color_pub = rospy.Publisher('/rotate_cmd', Header, queue_size=10)
-        #self.pub=rospy.Publisher('processed_data',np.ndarray,queue_size=10)
-        #self.last_published_data=None
         self.bridge = CvBridge()
         self.count=0
 
@@ -51,48 +38,25 @@ class DetermineColor:
             msg = data.header
             msg.frame_id = '0'  # default: STOP
 
-
-            draw=image.copy()
-
             image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
            
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            gray = cv2.GaussianBlur(gray, (5, 5), 0)
             edged = cv2.Canny(gray, 75, 200)
 
-        
-           
             cnts, x = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[0]
 
-            cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:3]
-            global pts
-
-            for c in cnts :
-              peri = cv2.arcLength(c, True)
-              verticles=cv2.approxPolyDP(c, 0.02* peri, True)
-              if len(verticles) == 4:
-                      break
-            try:          
-                      if cv2.contourArea(c)>(draw.shape[0]*draw.shape[1])/4:
-                         pts = verticles.reshape(4, 2)
-                      else: 
-                         chamshipjo
-            except:
-                      pass
-                             
+            peri = cv2.arcLength(cnts, True)
+            verticles=cv2.approxPolyDP(cnts, 0.02* peri, True)    
             
+            seat= np.zeros(gray.shape, dtype=np.uint8)
+            cv2.drawContours(seat, [verticles])
+            tv = cv2.bitwise_and(image, image, seat)
 
-            cv2.imshow('um', draw)
+            cv2.imshow('um', image)
             cv2.waitKey(10)    
-            # determine background color
-            # TODO
-            # determine the color and assing +1, 0, or, -1 for frame_id
-            #msg.frame_id = '+1' # CCW (Blue background)
-            # msg.frame_id = '0'  # STOP
-            # msg.frame_id = '-1' # CW (Red background)
 
-
-            msg.frame_id=BGR(draw, pts)
+            msg.frame_id=BGR(tv)
 
 
 
@@ -109,7 +73,7 @@ class DetermineColor:
         sys.exit(0)
 
 if __name__ == '__main__':
-    pts=np.array([[0,0],[0,0],[0,0],[0,0]])
     rospy.init_node('CompressedImages1', anonymous=False)
     detector = DetermineColor()
     rospy.spin()
+  
