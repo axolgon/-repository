@@ -16,9 +16,9 @@ def BGR(img, arr):
     for j in range(100):
       q=p1+(p2-p1)*(j/100)
       b,g,r=img[int(q[1]),int(q[0])]
-      if (b>=170 and b<=255) and (g>=0 and g<=150) and (r>=0 and r<=150):
+      if (b>=170 and b<=255) and (g>=0 and g<=200):
         bgr[0]+=1
-      elif (b>=0 and b<=150) and (g>=0 and g<=150) and (r>=170 and r<=255):
+      elif  (g>=0 and g<=150) and (r>=170 and r<=255):
         bgr[1]+=1
       else:
         bgr[2]+=1
