@@ -10,11 +10,11 @@ def BGR(img, arr):
   bgr=[0,0,0]
   musigi='0'
 
-  for i in range(70):
-    p1=arr[0]+(arr[1]-arr[0])*(i/70)
-    p2=arr[3]+(arr[2]-arr[3])*(i/70)
-    for j in range(100):
-      q=p1+(p2-p1)*(j/100)
+  for i in range(7):
+    p1=arr[0]+(arr[1]-arr[0])*(i/7)
+    p2=arr[3]+(arr[2]-arr[3])*(i/7)
+    for j in range(10):
+      q=p1+(p2-p1)*(j/10)
       b,g,r=img[int(q[1]),int(q[0])]
       if (b>=170 and b<=255) and (g>=0 and g<=200):
         bgr[0]+=1
