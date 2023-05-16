@@ -50,7 +50,7 @@ class DetermineColor:
             verticles=cv2.approxPolyDP(cnts, 0.02* peri, True)    
             
             seat= np.zeros(gray.shape, dtype=np.uint8)
-            cv2.drawContours(seat, [verticles])
+            cv2.drawContours(seat, [verticles],0,(255,255,255))
             tv = cv2.bitwise_and(image, image, seat)
 
             cv2.imshow('um', image)
